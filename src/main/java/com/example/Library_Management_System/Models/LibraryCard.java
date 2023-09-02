@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table
 @Getter
@@ -17,14 +20,20 @@ public class LibraryCard
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int cardNo;
+    private Integer cardNo;
     @Enumerated(value = EnumType.STRING)
     private CardStatus cardStatus;
-    private int noOfBookIssued;
+    private Integer noOfBookIssued;
 
     //Foreign Key to be added
+    //---------------------connections with different model/entity-----------------
+
     //Creating connection between parent(Student) & Child(Library Card)
     @OneToOne
     @JoinColumn
     private Student student; //this is foreign key i.e pk of Student table
+
+    //Connection with Transactions Entity ( LibraryCard -> Parent Class & Transactions -> Child Class ) Bidirectional mapping
+    @OneToMany(mappedBy = "libraryCard", cascade = CascadeType.ALL)
+    private List<Transactions> transactionsList = new ArrayList<>();
 }

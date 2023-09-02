@@ -20,7 +20,7 @@ public class Author
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int authorId;
+    private Integer authorId;
 
     private String name;
     @Column(unique = true)
@@ -28,6 +28,9 @@ public class Author
 
     private Integer age;
     private String penName;
+
+    //---------------------connections with different model/entity-----------------
+    //Connection with Book entity (Author -> Parent Class & Book -> Child class) bidirectional mapping
     @OneToMany(mappedBy = "author",cascade = CascadeType.ALL)
     private List<Book> bookList=new ArrayList<>();
 }
