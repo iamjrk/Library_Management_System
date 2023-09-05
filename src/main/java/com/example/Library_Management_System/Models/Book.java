@@ -38,6 +38,7 @@ public class Book
 
     //Assuming there is 1 piece of book in the library
     private boolean isAvailable;
+
     @Enumerated(value = EnumType.STRING)
     private Genre genre;
     private Date publicationDate;

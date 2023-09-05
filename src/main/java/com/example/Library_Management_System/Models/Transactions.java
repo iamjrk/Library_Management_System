@@ -34,6 +34,12 @@ public class Transactions
     private TransactionStatus transactionStatus;
     private Integer fineAmount;
 
+    public Transactions(TransactionType transactionType, TransactionStatus transactionStatus, Integer fineAmount) {
+        this.transactionType = transactionType;
+        this.transactionStatus = transactionStatus;
+        this.fineAmount = fineAmount;
+    }
+
     //---------------------connections with different model/entity-----------------
 
     //Connection with Book entity
