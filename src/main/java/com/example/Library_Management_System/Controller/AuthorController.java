@@ -85,4 +85,17 @@ public class AuthorController
         }
 
     }
+    @GetMapping("/getAuthorGreaterThanAge")
+    public ResponseEntity getAuthorGreaterThanAge(@RequestParam("givenAge")Integer givenAge)
+    {
+        try
+        {
+            List<String> list =authorService.getAuthorGreaterThanAge(givenAge);
+            return new ResponseEntity(list,HttpStatus.FOUND);
+        }
+        catch (Exception e)
+        {
+            return new ResponseEntity(e.getMessage(),HttpStatus.NOT_FOUND);
+        }
+    }
 }

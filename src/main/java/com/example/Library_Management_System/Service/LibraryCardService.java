@@ -64,21 +64,28 @@ public class LibraryCardService {
         return "Card has been linked successfully!!!";
     }
 
-    public CardStatus getCardStatus(Integer studentId) throws Exception
-    {
-        Optional<Student>optionalStudent = studentRepository.findById(studentId);
-
-        if(!optionalStudent.isPresent())
+    public CardStatus getCardStatus(Integer studentId) throws Exception {
+        try
         {
-            throw new Exception("Student Id is Invalid");
+            Optional<Student>optionalStudent = studentRepository.findById(studentId);
+
+            if(!optionalStudent.isPresent())
+            {
+                throw new Exception("Student Id is Invalid");
+            }
+
+            Student student = optionalStudent.get();
+
+            LibraryCard libraryCard =student.getLibraryCard();
+
+            CardStatus cardStatus=libraryCard.getCardStatus();
+
+            return cardStatus;
+        }
+        catch (Exception e)
+        {
+            throw new Exception("Not Found");
         }
 
-        Student student = optionalStudent.get();
-
-        LibraryCard libraryCard =student.getLibraryCard();
-
-        CardStatus cardStatus=libraryCard.getCardStatus();
-
-        return cardStatus;
     }
 }

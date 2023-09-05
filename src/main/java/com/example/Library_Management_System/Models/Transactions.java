@@ -2,6 +2,7 @@ package com.example.Library_Management_System.Models;
 
 import com.example.Library_Management_System.Enums.TransactionStatus;
 import com.example.Library_Management_System.Enums.TransactionType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -45,10 +46,12 @@ public class Transactions
     //Connection with Book entity
     @ManyToOne
     @JoinColumn
+    @JsonIgnore
     private Book book;
 
     //Connection with LibraryCard entity
     @ManyToOne
     @JoinColumn
+    @JsonIgnore
     private LibraryCard libraryCard;
 }

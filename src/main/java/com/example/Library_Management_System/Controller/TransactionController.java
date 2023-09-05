@@ -29,4 +29,18 @@ public class TransactionController
 
         }
     }
+    @PostMapping("/returnBook")
+    public ResponseEntity returnBook(@RequestParam("bookId") Integer bookId, @RequestParam("cardId")Integer cardId)
+    {
+        try
+        {
+            String result= transactionService.returnBook(bookId,cardId);
+            return new ResponseEntity(result,HttpStatus.OK);
+        }
+        catch (Exception e)
+        {
+            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+
+        }
+    }
 }

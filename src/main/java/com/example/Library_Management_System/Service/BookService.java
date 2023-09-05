@@ -6,6 +6,7 @@ import com.example.Library_Management_System.Models.Book;
 import com.example.Library_Management_System.Repositories.AuthorRepository;
 import com.example.Library_Management_System.Repositories.BookRepository;
 import com.example.Library_Management_System.RequestDto.AddBookRequestDto;
+import com.example.Library_Management_System.ResponseDto.BookResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -69,5 +70,22 @@ public class BookService {
             }
         }
         return genreBook.size();
+    }
+
+    public List<BookResponseDto> getBookListByGenre(Genre genre)
+    {
+        List<Book>bookList=bookRepository.findBooksByGenre(genre);
+
+        //stores required answer
+        List<BookResponseDto> responseDtoList = new ArrayList<>();
+
+        for (Book book:bookList)
+        {
+            BookResponseDto bookResponseDto =new BookResponseDto(book.getTitle(),
+                    book.getIsAvailable(),book.getGenre(),book.getPublicationDate(),book.getPriceOfBook(),book.getAuthor().getName());
+
+            responseDtoList.add(bookResponseDto);
+        }
+        return responseDtoList;
     }
 }

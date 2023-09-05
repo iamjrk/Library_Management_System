@@ -2,11 +2,14 @@ package com.example.Library_Management_System.Controller;
 
 import com.example.Library_Management_System.Enums.Genre;
 import com.example.Library_Management_System.RequestDto.AddBookRequestDto;
+import com.example.Library_Management_System.ResponseDto.BookResponseDto;
 import com.example.Library_Management_System.Service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/book")
@@ -38,6 +41,18 @@ public class BookController
         catch(Exception e)
         {
             return new ResponseEntity("Something went wrong!!!! error:"+e.getMessage(),HttpStatus.EXPECTATION_FAILED);
+        }
+    }
+    @GetMapping("/getBookListByGenre")
+    public ResponseEntity getBookListByGenre(@RequestParam("genre")Genre genre)
+    {
+        try {
+            List<BookResponseDto>responseDtoList=bookService.getBookListByGenre(genre);
+            return new ResponseEntity(responseDtoList,HttpStatus.FOUND);
+        }
+        catch (Exception e)
+        {
+            return new ResponseEntity(e.getMessage(),HttpStatus.NOT_FOUND);
         }
     }
 }

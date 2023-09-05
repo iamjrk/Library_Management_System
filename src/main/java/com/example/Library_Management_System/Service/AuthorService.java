@@ -79,4 +79,16 @@ public class AuthorService
         }
         return bookTitles;
     }
+
+    public List<String> getAuthorGreaterThanAge(Integer givenAge)
+    {
+        List<Author>authorList=authorRepository.findAuthorGreaterThanAge(givenAge);
+
+        List<String>list=new ArrayList<>();
+        for (Author author:authorList)
+        {
+            list.add(author.getName());
+        }
+        return list;
+    }
 }

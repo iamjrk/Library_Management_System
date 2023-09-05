@@ -14,8 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class TransactionService
@@ -27,9 +29,10 @@ public class TransactionService
     @Autowired
     private LibraryCardRepository libraryCardRepository;
 
-    @Value("${book.maxLimit}")
-    private Integer maxBookLimit;
-    public String issueBook(Integer bookId, Integer cardId) throws Exception
+//    @Value("${book.maxLimit}")
+//    private Integer maxBookLimit;
+    private Integer maxBookLimit=6;
+    public String issueBook(Integer bookId, Integer cardId) throws RuntimeException
     {
         //Initial phase of any transaction
         Transactions transactions = new Transactions(TransactionType.ISSUE, TransactionStatus.PENDING,0);
@@ -42,7 +45,8 @@ public class TransactionService
             throw new BookNotFoundException("Book Id is incorrect");
         }
         Book book = optionalBook.get();
-        if(book.isAvailable()==false)
+        book.setIsAvailable(false);
+        if(book.getIsAvailable()==false)
         {
             transactions.setTransactionStatus(TransactionStatus.FAILED);
             transactionRepository.save(transactions);
@@ -67,7 +71,7 @@ public class TransactionService
             throw new CardStatusIsNotRight("Card Status Is Not Right");
         }
 
-        if(card.getNoOfBookIssued()==maxBookLimit)
+        if(card.getNoOfBookIssued()>=maxBookLimit)
         {
             transactions.setTransactionStatus(TransactionStatus.FAILED);
             transactionRepository.save(transactions);
@@ -77,7 +81,7 @@ public class TransactionService
 
         //for successful transaction
         transactions.setTransactionStatus(TransactionStatus.SUCCESS);
-        book.setAvailable(false); //assuming only one book is present
+        book.setIsAvailable(false); //assuming only one book is present
         card.setNoOfBookIssued(card.getNoOfBookIssued()+1);
 
         //we need to do unidirectional mapping (mandatory step)--->
@@ -122,5 +126,72 @@ public class TransactionService
         libraryCardRepository.save(card);
 
         return "Transaction is SUCCESSFUL";
+    }
+
+    public String returnBook(Integer bookId, Integer cardId) throws RuntimeException
+    {
+        //Initial phase of any transaction
+        Transactions transactions = new Transactions(TransactionType.RETURN, TransactionStatus.PENDING,0);
+
+        //Book related exception handling
+        Optional<Book>optionalBook=bookRepository.findById(bookId);
+        if(!optionalBook.isPresent())
+        {
+            throw new BookNotFoundException("Book Id is incorrect");
+        }
+        Book book = optionalBook.get();
+
+        if(book.getIsAvailable()==true)
+        {
+            transactions.setTransactionStatus(TransactionStatus.FAILED);
+            transactionRepository.save(transactions);
+            throw new BookIsNotFromLibrary("This book doesn't belong to library");
+        }
+
+        //Card related exception handling
+        Optional<LibraryCard>optionalLibraryCard = libraryCardRepository.findById(cardId);
+        if(!optionalLibraryCard.isPresent())
+        {
+            throw new CardNotAvailable("Card Id is incorrect");
+        }
+        LibraryCard card=optionalLibraryCard.get();
+        if(!card.getCardStatus().equals(CardStatus.ACTIVE))
+        {
+            transactions.setTransactionStatus(TransactionStatus.FAILED);
+            transactionRepository.save(transactions);
+            throw new CardStatusIsNotRight("Card Status Is Not Right");
+        }
+
+        List<Transactions> transactionsList= transactionRepository.findTransactionByBookAndLibraryCardAndTransactionStatusAndTransactionType(book,card,TransactionStatus.SUCCESS,TransactionType.ISSUE);
+        Transactions latestTransaction = transactionsList.get(transactionsList.size()-1);
+        Date issueDate =latestTransaction.getCreatedAt();
+        long milliSecondTime = Math.abs(System.currentTimeMillis()- issueDate.getTime());
+        long no_of_days = TimeUnit.DAYS.convert(milliSecondTime,TimeUnit.MILLISECONDS);
+        int fineAmount=0;
+        if(no_of_days>15)
+        {
+            fineAmount=(int) (no_of_days-15)*5;
+        }
+
+        book.setIsAvailable(true);
+        card.setNoOfBookIssued(card.getNoOfBookIssued()-1);
+
+        transactions.setTransactionStatus(TransactionStatus.SUCCESS);
+        transactions.setFineAmount(fineAmount);
+        transactions.setBook(book);
+        transactions.setLibraryCard(card);
+
+        Transactions newTransactionWithId = transactionRepository.save(transactions);
+
+        book.getTransactionsList().add(newTransactionWithId);
+        card.getTransactionsList().add(newTransactionWithId);
+
+        //save parent
+        bookRepository.save(book);
+        libraryCardRepository.save(card);
+
+        return "Book has successfully been returned!!!";
+
+
     }
 }

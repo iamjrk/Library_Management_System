@@ -37,7 +37,7 @@ public class Book
     private String title;
 
     //Assuming there is 1 piece of book in the library
-    private boolean isAvailable;
+    private Boolean isAvailable;
 
     @Enumerated(value = EnumType.STRING)
     private Genre genre;
